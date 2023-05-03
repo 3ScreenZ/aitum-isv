@@ -2,6 +2,7 @@ import { AitumCC } from 'aitum.js'
 import { DeviceType } from 'aitum.js/lib/enums'
 import { StringInput } from 'aitum.js/lib/inputs'
 import { ICCActionInputs, ICustomCode } from 'aitum.js/lib/interfaces'
+import flashLights from '../helpers/elgato/flashLights'
 
 /*********** CONFIG ***********/
 // The custom code action name
@@ -10,11 +11,17 @@ const STREAM_MVP_GLOBAL_VAR = 'CurrentStreamMVP'
 
 // The custom code inputs
 const inputs: ICCActionInputs = {
-  chatInput: new StringInput('Chat Message', { required: true })
+  chatInput: new StringInput('Chat message', { required: true }),
+  lightsToFlash: new StringInput('Comma-separated list of lights to flash', { required: false })
+}
+
+type Params = {
+  chatInput: string,
+  lightsToFlash: string
 }
 
 // The code executed.
-async function method(inputs: { [key: string]: string }) {
+async function method(params: Params) {
   var currentMVP = ""
   var currentMVPGlobalVarId = ""
 
@@ -22,12 +29,12 @@ async function method(inputs: { [key: string]: string }) {
   const twitch = (await lib.getDevices(DeviceType.TWITCH))[0]
 
   // Validate message starts with !mvp
-  if (!inputs.chatInput.match(/^!mvp .+/)) {
+  if (!params.chatInput.match(/^!mvp .+/)) {
     return
   }
   
   // Extract username (removes "!mvp " prefix)
-  const mvp = inputs.chatInput.replace(/!mvp @?/, '')
+  const mvp = params.chatInput.replace(/!mvp @?/, '')
 
   // Get global variables
   const globalVars = await lib.aitum.getGlobalVariables()
@@ -55,6 +62,10 @@ async function method(inputs: { [key: string]: string }) {
 
   // Save new Stream MVP
   await lib.aitum.setGlobalVariable(currentMVPGlobalVarId, mvp)
+
+  // Flash Elgato lights
+  const lights = params.lightsToFlash.split(',')
+  lights.forEach((name) => flashLights(name))
 }
 
 /*********** DON'T EDIT BELOW ***********/
