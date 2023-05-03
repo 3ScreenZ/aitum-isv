@@ -53,6 +53,8 @@ If there are any issues connecting, they will be logged to your terminal.
 
 Moderator-only `!mvp <username>` command to set a specific chatter as the Stream MVP, which grants them the VIP status and stores their username in a global variable for use by other rules.
 
+![stream mvp](assets/stream-mvp.png)
+
 #### Setup
 
 Create a global variable named `CurrentStreamMVP` with a default string value. This will be overwritten by this custom action.
